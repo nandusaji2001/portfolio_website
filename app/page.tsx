@@ -470,7 +470,7 @@ export default function Portfolio() {
               <CardContent>
                 <form
                   className="space-y-4"
-                  action="https://formspree.io/f/mjkehuhu"
+                  action="https://formspree.io/f/mjkebogb"
                   method="POST"
                 >
                   <Input
