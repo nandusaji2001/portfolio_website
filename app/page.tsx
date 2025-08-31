@@ -507,7 +507,7 @@ export default function Portfolio() {
         {/* Footer */}
         <footer className="bg-black text-white py-10 text-center border-t border-white/10">
           <div className="text-2xl font-bold mb-2">Nandu Saji</div>
-          <p className="text-white/50 mb-6">© 2025 Nandu Saji. All rights reserved.</p>
+          <p className="text-white/50 mb-6">Do or Do Not. There is no Try</p>
           <div className="flex justify-center space-x-6">
             <Link href="https://github.com/nandusaji2001" aria-label="GitHub"><Github className="h-6 w-6 hover:text-white transition" /></Link>
             <Link href="https://www.linkedin.com/in/nandu-saji" aria-label="LinkedIn"><Linkedin className="h-6 w-6 hover:text-white transition" /></Link>
