@@ -431,7 +431,7 @@ export default function Portfolio() {
               </CardHeader>
               <CardContent>
                 <p className="text-white/80">
-                  <span className="font-semibold">Level 3 Member</span> with 1.4K+ Karma Points.
+                  <span className="font-semibold">Level 4 Member</span> with 2.1K+ Karma Points.
                 </p>
                 <a
                   href="https://app.mulearn.org/profile/nandusaji-1@mulearn"
