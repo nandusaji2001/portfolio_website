@@ -1,520 +1,1003 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Eye } from "lucide-react"
-import {
-  Github,
-  Linkedin,
-  Mail,
-  Phone,
-  MapPin,
-  ExternalLink,
-  Download,
-  Menu,
-  X,
-  Code,
-  Zap,
-  Star,
-  ArrowRight,
-} from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Bebas_Neue, Manrope } from "next/font/google"
+import { ArrowUpRight, Github, Linkedin, Mail, MapPin, Phone } from "lucide-react"
+import { useEffect } from "react"
 
-export default function Portfolio() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+const displayFont = Bebas_Neue({ subsets: ["latin"], weight: "400" })
+const bodyFont = Manrope({ subsets: ["latin"], weight: ["400", "500", "700", "800"] })
 
-  // Projects: removed the Weather Dashboard as requested
-  const projects = [
+const projects = [
   {
     title: "Multiple Disease Prediction using Machine Learning",
     description:
-      "A machine learning-based project that predicts the likelihood of multiple diseases using Python and Streamlit.",
+      "A machine learning application built with Python and Streamlit to estimate disease risk from clinical inputs. Implemented data preprocessing, model training and evaluation workflows, and an interactive UI so users can test predictions in real time.",
     image: "/multi_disease.jpg",
     technologies: ["Machine Learning", "Python", "Streamlit"],
     github: "https://github.com/nandusaji2001/Multiple-Disease-Prediction",
-    featured: true,
   },
   {
     title: "BlinkIt Sales Dashboard using PowerBI",
     description:
-      "An interactive PowerBI dashboard analyzing Blinkit sales data using charts and DAX functions.",
+      "An interactive PowerBI dashboard for Blinkit sales analysis with KPI tracking, category-level breakdowns, and region-wise performance views. Used DAX calculations and visual storytelling to highlight trends, optimize reporting, and support better business decisions.",
     image: "/blinkit.png",
-    technologies: ["PowerBI"],
+    technologies: ["PowerBI", "Data Analytics"],
     github: "https://github.com/nandusaji2001/Blinkit-Sales-Dashboard-PowerBI",
-    featured: true,
+  },
+  {
+    title: "ServConnect - Hyperlocal Services and Community Platform",
+    description:
+      "Full-stack platform built with ASP.NET Core and Razor Pages, featuring role-based access, OTP authentication, subscriptions, elder-care workflows, community services, notifications, and IoT gas monitoring alerts.",
+    image: "/servconnect.png",
+    technologies: ["ASP.NET Core", ".NET", "Razor Pages", "RBAC", "IoT"],
+    github: "https://github.com/nandusaji2001/ServConnect",
+    live: "https://servconnect.xyz/",
   },
 ]
 
+const internships = [
+  {
+    title: "React Intern",
+    company: "Mystic Xyborgs",
+    period: "Apr 2025",
+    description:
+      "Contributed to a banking application with authentication, secure money transfer flows, and role-based access control.",
+  },
+  {
+    title: "Data Science Intern",
+    company: "Luminar Technolab",
+    period: "Dec 2023 - Jul 2024",
+    description:
+      "Built ML, Deep Learning, AI, and NLP projects using Python, SQL, PowerBI, and cloud deployment workflows.",
+  },
+]
 
-  const internships = [
-    {
-      title: "React Intern",
-      company: "Mystic Xyborgs",
-      period: "Apr 2025",
-      description:
-        "Contributed to a banking application using React with features like authentication, money transfers, and role-based access.",
-      icon: <Code className="h-5 w-5" />,
-      location: "Pandalam",
-    },
-    {
-      title: "Data Science Intern",
-      company: "Luminar Technolab",
-      period: "Dec 2023 – Jul 2024",
-      description:
-        "Worked on ML, Deep Learning, AI, and NLP projects. Gained experience with Python, SQL, PowerBI, and AWS Cloud deployment.",
-      icon: <Zap className="h-5 w-5" />,
-      location: "Kochi",
-    },
-  ]
+const skills = ["Python", "Machine Learning", "React", "Deep Learning", "Java", "C++", "MongoDB", "Git", "PowerBI", "SQL"]
 
-  const skills = [
-    "Python",
-    "Machine Learning",
-    "React",
-    "Deep Learning",
-    "Java",
-    "C++",
-    "MongoDB",
-    "Git",
-    "PowerBI",
-    "SQL",
-  ]
+const navItems = [
+  { href: "#home", label: "Home" },
+  { href: "#about", label: "About" },
+  { href: "#projects", label: "Work / Portfolio" },
+  { href: "#experience", label: "Internships" },
+  { href: "#contact", label: "Contact" },
+]
+
+export default function PortfolioPage() {
+  useEffect(() => {
+    const elements = document.querySelectorAll<HTMLElement>(".reveal")
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible")
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.16 },
+    )
+
+    elements.forEach((element) => observer.observe(element))
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <TooltipProvider>
-      <div className="relative min-h-screen bg-black text-white overflow-hidden scroll-smooth">
-        {/* Navigation */}
-        <nav className="fixed top-0 w-full bg-black/70 backdrop-blur-md border-b border-white/10 z-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-3">
-              <Link href="#home" className="text-2xl font-bold text-white hover:opacity-90 transition">
-                Nandu Saji
-              </Link>
+    <main className={`${bodyFont.className} portfolio-wrap`}>
+      <section id="home" className="hero-shell">
+        <nav className="nav-pill">
+          {navItems.map((item, index) => (
+            <Link key={item.href} href={item.href} className={`nav-link ${index === 0 ? "active" : ""}`}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
 
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center gap-5 text-sm">
-                {[
-                  { href: "#home", label: "Home" },
-                  { href: "#about", label: "About" },
-                  { href: "#projects", label: "Projects" },
-                  { href: "#experience", label: "Internships" },
-                  { href: "#achievements", label: "Achievements" }, // 👈 Added here
-                  { href: "#contact", label: "Contact" },
-                ].map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="relative text-white/80 hover:text-white transition"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-
-              {/* Mobile menu button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden text-white"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Toggle menu"
+        <div className="hero-card">
+          <div className="hero-glow" aria-hidden />
+          <h1 className={`${displayFont.className} hero-name`} aria-label="Nandu Saji">
+            {Array.from("Nandu Saji").map((char, index) => (
+              <span
+                key={`${char}-${index}`}
+                className={char === " " ? "hero-space" : "hero-letter"}
+                style={{ animationDelay: `${index * 45}ms` }}
               >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </Button>
-              </div>
-              </div>
+                {char === " " ? "\u00A0" : char}
+              </span>
+            ))}
+          </h1>
 
-              {/* Mobile Menu Overlay */}
-              {isMenuOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40 bg-black/60 md:hidden"
-                    onClick={() => setIsMenuOpen(false)}
-                  />
-                  <div className="md:hidden fixed top-14 left-4 right-4 z-50 rounded-xl border border-white/10 bg-black/95 shadow-xl backdrop-blur">
-                    <div className="flex flex-col p-3 space-y-1">
-                      {[
-                        { href: "#home", label: "Home" },
-                        { href: "#about", label: "About" },
-                        { href: "#projects", label: "Projects" },
-                        { href: "#experience", label: "Internships" },
-                        { href: "#achievements", label: "Achievements" }, // 👈 Added here
-                        { href: "#contact", label: "Contact" },
-                      ].map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="rounded-lg px-4 py-3 hover:bg-white/5 text-white/90"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-              </nav>
-
-
-        {/* Hero Section - tightened spacing, monochrome */}
-        <section id="home" className="scroll-mt-24 pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex items-center">
-          <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-8 items-center">
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/10 text-white text-sm font-medium mb-5 shadow-sm ring-1 ring-white/10">
-                <Star className="h-4 w-4 mr-2" />
-                Available for new projects
-              </div>
-              <h1 className="text-5xl sm:text-6xl font-bold mb-5 leading-tight">
-                Hi, I'm <span className="text-white">Nandu Saji</span>
-              </h1>
-              <p className="text-lg sm:text-xl text-gray-300 mb-6 max-w-2xl mx-auto lg:mx-0">
-                MCA student at Amal Jyothi College of Engineering with a background in BSc Nautical Science. Passionate about coding, machine learning, and full-stack development.
+          <div className="hero-content">
+            <div className="hero-copy fade-up">
+              <p className="hero-tag">I design and build practical digital products.</p>
+              <p className="hero-sub">
+                Software Developer at Hudson Software Solutions, specializing in machine learning, analytics, and human-centered web experiences.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 mb-6 justify-center lg:justify-start">
-                <Button
-                size="lg"
-                className="bg-white text-black hover:bg-gray-200 shadow-lg"
-                asChild
-              >
-                <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
-                  <Eye className="h-5 w-5 mr-2" />
-                  View Resume
-                </a>
-              </Button>
-                <Button
-                variant="outline"
-                size="lg"
-                asChild
-                className="text-black"
-                >
-                <Link href="#contact">
-                  Get In Touch
-                  <ArrowRight className="h-4 w-4 ml-2" />
+              <div className="hero-socials">
+                <Link href="https://x.com" aria-label="X" target="_blank" rel="noreferrer" className="icon-link">
+                  x
                 </Link>
-              </Button>
-
-              </div>
-              <div className="flex justify-center lg:justify-start space-x-6">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="https://github.com/nandusaji2001" aria-label="GitHub">
-                      <Github className="h-6 w-6 hover:text-white transition" />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>GitHub</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="https://www.linkedin.com/in/nandu-saji" aria-label="LinkedIn">
-                      <Linkedin className="h-6 w-6 hover:text-white transition" />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>LinkedIn</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link href="mailto:nandusaji20012001@gmail.com" aria-label="Email">
-                      <Mail className="h-6 w-6 hover:text-white transition" />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>Email</TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
-
-            <div className="relative w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 mx-auto">
-              <div className="relative rounded-full p-1 bg-white/10 shadow-2xl">
-                <div className="rounded-full p-2 bg-black ring-1 ring-white/10">
-                  <Image
-                    src="/profile.jpg"
-                    alt="Profile Photo"
-                    width={320}
-                    height={320}
-                    className="rounded-full border-4 border-black shadow-xl"
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* About Section - monochrome, tighter spacing */}
-        <section id="about" className="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
-          <div className="max-w-6xl mx-auto text-center mb-8">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-3">About Me</h2>
-            <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-              I completed my BSc Nautical Science and later discovered my passion for coding and software development. Currently pursuing MCA, I specialize in Machine Learning, Data Analytics, and Full-Stack Development.
-            </p>
-          </div>
-          <div className="max-w-5xl mx-auto">
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {skills.map((skill) => (
-                <Badge
-                  key={skill}
-                  variant="secondary"
-                  className="text-sm px-3 py-1.5 bg-white/5 border border-white/10 text-white"
+                <Link
+                  href="https://www.linkedin.com/in/nandu-saji"
+                  aria-label="LinkedIn"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="icon-link"
                 >
-                  {skill}
-                </Badge>
-              ))}
+                  <Linkedin size={16} />
+                </Link>
+                <Link
+                  href="https://github.com/nandusaji2001"
+                  aria-label="GitHub"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="icon-link"
+                >
+                  <Github size={16} />
+                </Link>
+              </div>
+            </div>
+
+            <div className="portrait-wrap slide-in">
+              <Image
+                src="/profile_new.png"
+                alt="Nandu Saji portrait"
+                width={620}
+                height={760}
+                className="portrait"
+                priority
+              />
+            </div>
+
+            <div className="hero-side fade-up-delay">
+              <p>
+                Blending design thinking with engineering discipline to create products that are useful, usable, and
+                memorable.
+              </p>
+              <Link href="#contact" className="cta-link">
+                Let&apos;s Talk <ArrowUpRight size={16} />
+              </Link>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Projects Section - monochrome, no glow, tighter spacing */}
-        <section id="projects" className="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto text-center mb-8">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-3">Featured Projects</h2>
-            <p className="text-gray-300">Some things I’ve built recently</p>
-          </div>
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project, index) => (
-              <div key={index} className="group relative">
-                <Card className="relative flex flex-col h-full overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/80 shadow-md transition-transform duration-300 group-hover:-translate-y-0.5">
-
-                  <div className="aspect-video relative overflow-hidden">
-                    <Image src={project.image} alt={project.title} fill className="object-cover grayscale transition duration-500 group-hover:grayscale-0" />
-                  
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
-                  </div>
-                  <CardHeader>
-                    <CardTitle className="leading-tight">{project.title}</CardTitle>
-                    <CardDescription className="text-gray-300">{project.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="mt-auto">
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech) => (
-                      <Badge key={tech} variant="outline" className="bg-black/40 border-white/15 text-white/90">
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center space-x-4 mt-4">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Link
-                          href={project.github}
-                          aria-label="GitHub repo"
-                          className="hover:text-white transition"
-                          target="_blank"
-                        >
-                          <Github className="h-5 w-5 text-white hover:text-gray-300" />
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent>Source</TooltipContent>
-                    </Tooltip>
-                  </div>
-                </CardContent>
-
-                </Card>
-              </div>
+      <section id="about" className="section about-grid reveal">
+        <div>
+          <p className="section-kicker">// About</p>
+          <p className="muted">
+            I started with a BSc in Nautical Science and moved into software because I enjoy solving hard problems and
+            building products people actually use.
+          </p>
+          <div className="skill-list">
+            {skills.map((skill) => (
+              <span key={skill} className="skill-chip">
+                {skill}
+              </span>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* Internships Section - monochrome timeline */}
-        <section id="experience" className="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10">
-          <div className="max-w-6xl mx-auto text-center mb-8">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-3">Internships</h2>
-            <p className="text-gray-300">Highlights from my recent experience</p>
+        <div>
+          <h2 className={`${displayFont.className} section-heading`}>Capturing impact, not just code.</h2>
+          <div className="stats-row">
+            <article>
+              <h3>+240</h3>
+              <p>Practical hours invested in ML, analytics, and product development.</p>
+            </article>
+            <article>
+              <h3>+20</h3>
+              <p>End-to-end prototypes, assignments, dashboards, and experiments completed.</p>
+            </article>
           </div>
-          <div className="relative max-w-4xl mx-auto">
-            {/* Vertical timeline line */}
-            <div aria-hidden className="absolute left-8 top-0 bottom-0 w-0.5 bg-white/10" />
-            <div className="space-y-8">
-              {internships.map((internship, index) => (
-                <div key={index} className="relative pl-16">
-                  {/* Timeline dot */}
-                  <div className="absolute left-8 top-2 -translate-x-1.5 h-3 w-3 rounded-full bg-white ring-4 ring-black" />
-                  <div className="bg-neutral-900 rounded-2xl p-6 shadow-lg border border-white/10">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-3">
-                      <h3 className="text-2xl font-bold flex items-center gap-2">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white">
-                          {internship.icon}
-                        </span>
-                        {internship.title}
-                      </h3>
-                      <span className="text-sm font-medium text-black bg-white px-3 py-1 rounded-full mt-2 lg:mt-0">
-                        {internship.period}
-                      </span>
-                    </div>
-                    <p className="text-lg font-semibold text-white mb-1">
-                      {internship.company} – {internship.location}
-                    </p>
-                    <p className="text-white/80">{internship.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        </div>
+      </section>
 
-                {/* Achievements Section - monochrome cards with certificate viewer */}
-        <section
-          id="achievements"
-          className="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8 border-t border-white/10"
-        >
-          <div className="max-w-6xl mx-auto text-center mb-8">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-3">Achievements</h2>
-            <p className="text-gray-300">A few highlights from my journey</p>
-          </div>
-
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
-            {/* Director's Honours List */}
-            <Card className="border border-white/10 bg-neutral-900 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-white">
-                  Director's Honours List (S2)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-white/80">
-                  <span className="font-semibold">Rank 1 Performer</span> for obtaining SGPA of 9.05.
-                </p>
-                <a
-                  href="/certificates/honours2.jpg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-3 text-sm text-blue-400 hover:underline"
-                >
-                  View Certificate
-                </a>
-              </CardContent>
-            </Card>
-
-            {/* Honours List 2 */}
-            <Card className="border border-white/10 bg-neutral-900 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-white">Director's Honours List(S1)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-white/80">
-                  <span className="font-semibold">Second Price</span> for obtaining SGPA of 8.84.
-                </p>
-                <a
-                  href="/certificates/honours1.jpg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-3 text-sm text-blue-400 hover:underline"
-                >
-                  View Certificate
-                </a>
-              </CardContent>
-            </Card>
-
-            {/* Student Membership of ISTE */}
-            <Card className="border border-white/10 bg-neutral-900 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-white"> Student Membership of ISTE</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-white/80">
-                  <span className="font-semibold">Membership in Indian Society for Technical Education</span>
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* mulearn*/}
-            <Card className="border border-white/10 bg-neutral-900 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-white">Mulearn Community Member</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-white/80">
-                  <span className="font-semibold">Level 4 Member</span> with 2.1K+ Karma Points.
-                </p>
-                <a
-                  href="https://app.mulearn.org/profile/nandusaji-1@mulearn"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-3 text-sm text-blue-400 hover:underline"
-                >
-                  View Mulearn profile
-                </a>
-              </CardContent>
-            </Card>
-
-    
-          </div>
-        </section>
-
-
-
-        {/* Contact Section - monochrome panel */}
-        <section id="contact" className="scroll-mt-24 py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto text-center mb-8">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-3">Let's Work Together</h2>
-            <p className="text-gray-300">Feel free to reach out for collaborations or just a friendly chat</p>
-          </div>
-          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            <div className="rounded-3xl p-8 bg-neutral-900 text-white shadow-xl border border-white/10">
-              <h3 className="text-2xl font-bold mb-6" >Get In Touch</h3>
-              <div className="space-y-4 text-white/90">
-                <div className="flex items-center gap-3"><Mail /> nandusaji20012001@gmail.com</div>
-                <div className="flex items-center gap-3"><Phone /> +91 9744892806</div>
-                <div className="flex items-center gap-3"><MapPin /> Idukki, Kattappana</div>
+      <section id="projects" className="section section-projects reveal">
+        <div className="section-header">
+          <p className="section-kicker">// Work</p>
+          <h2 className={`${displayFont.className} section-title`}>Selected Projects</h2>
+        </div>
+        <div className="project-grid">
+          {projects.map((project, index) => (
+            <article key={project.title} className="project-card reveal" style={{ transitionDelay: `${index * 120}ms` }}>
+              <div className="project-image-wrap">
+                <Image src={project.image} alt={project.title} fill className="project-image" />
               </div>
-            </div>
-            <Card className="border border-white/10 bg-neutral-900 shadow-2xl">
-              <CardHeader className="text-white"><CardTitle>Send Me a Message</CardTitle></CardHeader>
-              <CardContent>
-                <form
-                  className="space-y-4"
-                  action="https://formspree.io/f/mjkebogb"
-                  method="POST"
-                >
-                  <Input
-                    name="name"
-                    placeholder="Your Name"
-                    className="bg-black border-white/15 text-white placeholder:text-white/40"
-                    required
-                  />
-                  <Input
-                    name="email"
-                    type="email"
-                    placeholder="Email Address"
-                    className="bg-black border-white/15 text-white placeholder:text-white/40"
-                    required
-                  />
-                  <Textarea
-                    name="message"
-                    placeholder="Your Message"
-                    rows={5}
-                    className="bg-black border-white/15 text-white placeholder:text-white/40"
-                    required
-                  />
-                  <Button type="submit" className="w-full bg-white text-black hover:bg-gray-200">
-                    Send Message
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+              <div className="project-body">
+                <h3>{project.title}</h3>
+                <p>{project.description}</p>
+                <div className="tech-row">
+                  {project.technologies.map((tech) => (
+                    <span key={tech}>{tech}</span>
+                  ))}
+                </div>
+                <div className="project-links">
+                  <Link href={project.github} target="_blank" rel="noreferrer" className="repo-link">
+                    GitHub <ArrowUpRight size={16} />
+                  </Link>
+                  {project.live ? (
+                    <Link href={project.live} target="_blank" rel="noreferrer" className="repo-link">
+                      Live Site <ArrowUpRight size={16} />
+                    </Link>
+                  ) : null}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
-        <Separator className="opacity-20" />
+      <section id="experience" className="section reveal">
+        <div className="section-header">
+          <p className="section-kicker">// Internship</p>
+          <h2 className={`${displayFont.className} section-title`}>Experience Snapshot</h2>
+        </div>
+        <div className="timeline">
+          {internships.map((item, index) => (
+            <article key={item.title} className="timeline-item reveal" style={{ transitionDelay: `${index * 120}ms` }}>
+              <div className="timeline-period">{item.period}</div>
+              <div>
+                <h3>
+                  {item.title} <span>@ {item.company}</span>
+                </h3>
+                <p>{item.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
-        {/* Footer */}
-        <footer className="bg-black text-white py-10 text-center border-t border-white/10">
-          <div className="text-2xl font-bold mb-2">Nandu Saji</div>
-          <p className="text-white/50 mb-6">Do or Do Not. There is no Try</p>
-          <div className="flex justify-center space-x-6">
-            <Link href="https://github.com/nandusaji2001" aria-label="GitHub"><Github className="h-6 w-6 hover:text-white transition" /></Link>
-            <Link href="https://www.linkedin.com/in/nandu-saji" aria-label="LinkedIn"><Linkedin className="h-6 w-6 hover:text-white transition" /></Link>
-            <Link href="mailto:nandusaji20012001@gmail.com" aria-label="Email"><Mail className="h-6 w-6 hover:text-white transition" /></Link>
+      <section id="contact" className="section contact-grid reveal">
+        <div>
+          <p className="section-kicker">// Contact</p>
+          <h2 className={`${displayFont.className} section-title`}>Let&apos;s Build Something Real</h2>
+          <p className="muted">
+            If you have a role, project, or collaboration in mind, I&apos;d love to hear about it.
+          </p>
+          <div className="contact-list">
+            <p>
+              <Mail size={16} /> nandusaji20012001@gmail.com
+            </p>
+            <p>
+              <Phone size={16} /> +91 9744892806
+            </p>
+            <p>
+              <MapPin size={16} /> Kattappana, Idukki
+            </p>
           </div>
-        </footer>
-      </div>
-    </TooltipProvider>
+        </div>
+
+        <form action="https://formspree.io/f/mjkebogb" method="POST" className="contact-form">
+          <input name="name" placeholder="Your Name" required />
+          <input type="email" name="email" placeholder="Email Address" required />
+          <textarea name="message" placeholder="Your Message" rows={5} required />
+          <button type="submit">Send Message</button>
+        </form>
+      </section>
+
+      <footer className="portfolio-footer reveal">
+        <p>© {new Date().getFullYear()} Nandu Saji</p>
+        <div>
+          <Link href="https://github.com/nandusaji2001" target="_blank" rel="noreferrer" aria-label="GitHub">
+            <Github size={18} />
+          </Link>
+          <Link
+            href="https://www.linkedin.com/in/nandu-saji"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="LinkedIn"
+          >
+            <Linkedin size={18} />
+          </Link>
+        </div>
+      </footer>
+
+      <style jsx global>{`
+        .portfolio-wrap {
+          --page-pad: 1rem;
+          min-height: 100vh;
+          color: #eef1f6;
+          background:
+            radial-gradient(circle at 20% 10%, rgba(92, 138, 255, 0.26), transparent 42%),
+            radial-gradient(circle at 78% 16%, rgba(14, 228, 167, 0.2), transparent 36%),
+            linear-gradient(170deg, #070a11 0%, #0d1018 46%, #131722 100%);
+          background-size: 140% 140%;
+          padding: 0 var(--page-pad);
+          animation: bgShift 20s ease-in-out infinite alternate;
+        }
+
+        .section,
+        .portfolio-footer {
+          width: min(1280px, 100%);
+          margin-inline: auto;
+        }
+
+        .hero-shell {
+          width: calc(100% + (var(--page-pad) * 2));
+          margin-inline: calc(var(--page-pad) * -1);
+        }
+
+        .nav-pill {
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 0.35rem;
+          padding: 0.4rem;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          margin-bottom: 1rem;
+        }
+
+        .nav-link {
+          text-align: center;
+          font-size: 0.84rem;
+          color: #c8cfde;
+          text-decoration: none;
+          border-radius: 999px;
+          padding: 0.6rem 0.35rem;
+          transition: all 0.25s ease;
+        }
+
+        .nav-link:hover {
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.12);
+        }
+
+        .nav-link.active {
+          color: #ffffff;
+          background: linear-gradient(120deg, #4876ff, #2bb7f6);
+        }
+
+        .hero-card {
+          position: relative;
+          overflow: hidden;
+          border-radius: 2rem;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          background: linear-gradient(135deg, rgba(4, 8, 18, 0.92), rgba(8, 12, 24, 0.74));
+          min-height: 76vh;
+          padding: clamp(1rem, 2.2vw, 1.5rem);
+        }
+
+        .hero-glow {
+          position: absolute;
+          inset: auto;
+          left: 50%;
+          top: 56%;
+          transform: translate(-50%, -50%);
+          width: min(680px, 90vw);
+          aspect-ratio: 1;
+          border-radius: 50%;
+          background:
+            radial-gradient(circle at center, rgba(81, 117, 245, 0.45) 0%, rgba(114, 59, 220, 0.34) 35%, transparent 70%);
+          filter: blur(5px);
+          pointer-events: none;
+          animation: pulseGlow 7s ease-in-out infinite;
+        }
+
+        .hero-name {
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+          right: 1rem;
+          margin: 0;
+          line-height: 0.8;
+          letter-spacing: 0.02em;
+          text-transform: uppercase;
+          font-size: clamp(7rem, 25vw, 24rem);
+          text-align: center;
+          color: rgba(244, 247, 255, 0.95);
+          z-index: 1;
+          pointer-events: none;
+          white-space: nowrap;
+        }
+
+        .hero-letter,
+        .hero-space {
+          display: inline-block;
+        }
+
+        .hero-letter {
+          pointer-events: auto;
+          transition: transform 0.22s ease, text-shadow 0.22s ease, color 0.22s ease, filter 0.22s ease;
+          animation: letterIdle 3.8s ease-in-out infinite alternate;
+        }
+
+        .hero-letter:hover {
+          color: #ffffff;
+          transform: translateY(-8px) scale(1.08);
+          text-shadow: 0 0 10px rgba(121, 188, 255, 0.98), 0 0 26px rgba(96, 129, 255, 0.95), 0 0 48px rgba(71, 79, 255, 0.65);
+          filter: drop-shadow(0 0 20px rgba(95, 168, 255, 0.8));
+        }
+
+        .hero-space {
+          width: 0.32em;
+        }
+
+        .hero-content {
+          position: relative;
+          z-index: 2;
+          min-height: calc(76vh - 3rem);
+          display: grid;
+          grid-template-columns: minmax(220px, 1fr) minmax(300px, 1.2fr) minmax(220px, 1fr);
+          align-items: end;
+          gap: 1rem;
+          pointer-events: none;
+        }
+
+        .hero-copy,
+        .hero-side {
+          max-width: 320px;
+          padding-bottom: 1rem;
+          pointer-events: auto;
+        }
+
+        .hero-tag {
+          font-size: 0.95rem;
+          color: #d6def4;
+          margin-bottom: 0.9rem;
+          line-height: 1.45;
+        }
+
+        .hero-sub {
+          font-size: 0.87rem;
+          color: #aab5cb;
+          line-height: 1.55;
+          margin-bottom: 1rem;
+        }
+
+        .hero-socials {
+          display: flex;
+          gap: 0.55rem;
+        }
+
+        .icon-link {
+          width: 2rem;
+          height: 2rem;
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          text-decoration: none;
+          border: 1px solid rgba(255, 255, 255, 0.24);
+          color: #dce3f4;
+          background: rgba(255, 255, 255, 0.06);
+        }
+
+        .icon-link:hover {
+          color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.48);
+          transform: translateY(-1px);
+        }
+
+        .portrait-wrap {
+          position: relative;
+          align-self: end;
+          justify-self: center;
+          width: min(640px, 100%);
+          pointer-events: none;
+        }
+
+        .portrait {
+          width: 100%;
+          height: auto;
+          max-height: 74vh;
+          object-fit: contain;
+          object-position: center bottom;
+          filter: drop-shadow(0 20px 55px rgba(0, 0, 0, 0.6));
+          pointer-events: none;
+        }
+
+        .hero-side {
+          justify-self: end;
+        }
+
+        .hero-side p {
+          font-size: 0.87rem;
+          color: #c4cee1;
+          margin-bottom: 1rem;
+          line-height: 1.6;
+        }
+
+        .cta-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          text-decoration: none;
+          font-weight: 700;
+          font-size: 0.85rem;
+          border-radius: 999px;
+          color: #ffffff;
+          background: linear-gradient(120deg, #4876ff, #2bb7f6);
+          padding: 0.62rem 1rem;
+        }
+
+        .section {
+          padding: clamp(2rem, 5vw, 4rem) 0;
+        }
+
+        .section-projects {
+          padding-top: clamp(0.8rem, 2vw, 1.3rem);
+        }
+
+        .about-grid,
+        .contact-grid {
+          display: grid;
+          gap: 1.5rem;
+          grid-template-columns: 1fr 1.2fr;
+        }
+
+        .section-kicker {
+          color: #6ab9ff;
+          font-weight: 700;
+          font-size: 0.84rem;
+          margin-bottom: 1rem;
+        }
+
+        .section-heading,
+        .section-title {
+          font-size: clamp(3rem, 8vw, 5.8rem);
+          line-height: 0.9;
+          margin: 0 0 1rem;
+          color: #f7f9ff;
+        }
+
+        .section-title {
+          font-size: clamp(2.8rem, 7vw, 4.4rem);
+          margin-bottom: 0;
+        }
+
+        .muted {
+          color: #a7b3cb;
+          line-height: 1.65;
+          max-width: 48ch;
+        }
+
+        .skill-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.55rem;
+          margin-top: 1.15rem;
+        }
+
+        .skill-chip {
+          font-size: 0.76rem;
+          padding: 0.4rem 0.7rem;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.07);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          color: #d8deeb;
+        }
+
+        .stats-row {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 1rem;
+          margin-top: 1rem;
+        }
+
+        .stats-row article {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 1rem;
+          padding: 1rem;
+        }
+
+        .stats-row h3 {
+          margin: 0;
+          font-size: 3rem;
+          line-height: 1;
+          color: #f4f7ff;
+        }
+
+        .stats-row p {
+          margin-top: 0.5rem;
+          color: #aab6cf;
+          font-size: 0.93rem;
+        }
+
+        .section-header {
+          display: flex;
+          align-items: end;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+        }
+
+        .project-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1rem;
+        }
+
+        .project-card {
+          overflow: hidden;
+          border-radius: 1.3rem;
+          background: rgba(10, 14, 26, 0.76);
+          border: 1px solid rgba(255, 255, 255, 0.13);
+          transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+
+        .project-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(125, 186, 255, 0.8);
+        }
+
+        .project-image-wrap {
+          position: relative;
+          aspect-ratio: 16 / 9;
+          overflow: hidden;
+        }
+
+        .project-image {
+          object-fit: cover;
+        }
+
+        .project-body {
+          padding: 1rem;
+        }
+
+        .project-body h3 {
+          margin: 0;
+          font-size: 1.05rem;
+          color: #f5f8ff;
+        }
+
+        .project-body p {
+          margin: 0.6rem 0;
+          color: #b8c2d7;
+          line-height: 1.6;
+          font-size: 0.91rem;
+        }
+
+        .tech-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.45rem;
+          margin-bottom: 0.9rem;
+        }
+
+        .tech-row span {
+          font-size: 0.73rem;
+          border-radius: 999px;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          background: rgba(255, 255, 255, 0.06);
+          padding: 0.3rem 0.6rem;
+        }
+
+        .repo-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.34rem;
+          color: #8ad0ff;
+          font-size: 0.84rem;
+          text-decoration: none;
+          font-weight: 700;
+        }
+
+        .project-links {
+          display: flex;
+          align-items: center;
+          gap: 0.9rem;
+          flex-wrap: wrap;
+        }
+
+        @media (max-width: 1200px) {
+          .project-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        .timeline {
+          display: grid;
+          gap: 0.9rem;
+        }
+
+        .timeline-item {
+          display: grid;
+          grid-template-columns: 140px 1fr;
+          gap: 1rem;
+          padding: 1rem;
+          border-radius: 1rem;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .timeline-period {
+          color: #86caff;
+          font-size: 0.84rem;
+          font-weight: 700;
+        }
+
+        .timeline-item h3 {
+          margin: 0;
+          color: #f4f7ff;
+          font-size: 1.1rem;
+        }
+
+        .timeline-item h3 span {
+          color: #9bb0d4;
+          font-weight: 500;
+          font-size: 0.95rem;
+        }
+
+        .timeline-item p {
+          margin: 0.45rem 0 0;
+          color: #b9c4da;
+          line-height: 1.6;
+        }
+
+        .contact-list {
+          margin-top: 1rem;
+          display: grid;
+          gap: 0.5rem;
+        }
+
+        .contact-list p {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin: 0;
+          color: #d7def0;
+        }
+
+        .contact-form {
+          display: grid;
+          gap: 0.7rem;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 1rem;
+          padding: 1rem;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+          width: 100%;
+          border-radius: 0.7rem;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: rgba(1, 5, 12, 0.5);
+          color: #f1f5ff;
+          font: inherit;
+          padding: 0.7rem 0.8rem;
+        }
+
+        .contact-form input::placeholder,
+        .contact-form textarea::placeholder {
+          color: #95a4c2;
+        }
+
+        .contact-form button {
+          border: 0;
+          border-radius: 999px;
+          padding: 0.7rem 1rem;
+          font: inherit;
+          font-weight: 800;
+          color: #fff;
+          background: linear-gradient(120deg, #4876ff, #2bb7f6);
+          cursor: pointer;
+        }
+
+        .portfolio-footer {
+          border-top: 1px solid rgba(255, 255, 255, 0.14);
+          margin-top: 1.25rem;
+          padding: 1rem 0 1.8rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          color: #9fb0ce;
+          font-size: 0.82rem;
+        }
+
+        .portfolio-footer div {
+          display: flex;
+          gap: 0.7rem;
+        }
+
+        .portfolio-footer a {
+          color: #d6dded;
+        }
+
+        .reveal {
+          opacity: 0;
+          transform: translateY(26px) scale(0.98);
+          transition: opacity 0.72s ease, transform 0.72s cubic-bezier(0.2, 0.7, 0.1, 1);
+        }
+
+        .reveal.is-visible {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+
+        .fade-up {
+          animation: fadeUp 0.85s ease both;
+        }
+
+        .fade-up-delay {
+          animation: fadeUp 0.85s ease 0.18s both;
+        }
+
+        .slide-in {
+          animation: slideIn 0.95s ease 0.08s both;
+        }
+
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(14px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes pulseGlow {
+          0%,
+          100% {
+            transform: translate(-50%, -50%) scale(0.96);
+            opacity: 0.8;
+          }
+          50% {
+            transform: translate(-50%, -50%) scale(1.04);
+            opacity: 1;
+          }
+        }
+
+        @keyframes bgShift {
+          0% {
+            background-position: 0% 40%;
+          }
+          100% {
+            background-position: 100% 60%;
+          }
+        }
+
+        @keyframes letterIdle {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(-2px);
+          }
+        }
+
+        @media (max-width: 980px) {
+          .hero-card {
+            min-height: auto;
+            padding-top: 1.15rem;
+            padding-bottom: 1rem;
+          }
+
+          .hero-content {
+            grid-template-columns: 1fr;
+            justify-items: center;
+            text-align: center;
+            gap: 0.6rem;
+            padding-top: clamp(4.5rem, 14vw, 7.2rem);
+          }
+
+          .hero-copy,
+          .hero-side {
+            justify-self: center;
+            max-width: min(92vw, 560px);
+            padding-bottom: 0;
+          }
+
+          .portrait-wrap {
+            width: min(420px, 92vw);
+          }
+
+          .portrait {
+            max-height: 52vh;
+          }
+
+          .hero-socials {
+            justify-content: center;
+          }
+
+          .hero-name {
+            font-size: clamp(4.2rem, 16vw, 9.5rem);
+            text-align: center;
+            top: 0.65rem;
+            left: 0.35rem;
+            right: 0.35rem;
+          }
+
+          .hero-side p {
+            margin-inline: auto;
+          }
+
+          .about-grid,
+          .contact-grid,
+          .project-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+        }
+
+        @media (max-width: 660px) {
+          .portfolio-wrap {
+            --page-pad: 0.65rem;
+          }
+
+          .hero-card {
+            border-radius: 1.25rem;
+          }
+
+          .hero-content {
+            gap: 0.85rem;
+            padding-top: clamp(3.8rem, 22vw, 5.5rem);
+          }
+
+          .nav-pill {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            border-radius: 1rem;
+          }
+
+          .hero-name {
+            font-size: clamp(2.8rem, 18vw, 5.3rem);
+            line-height: 0.84;
+            letter-spacing: 0.01em;
+          }
+
+          .hero-space {
+            width: 0.2em;
+          }
+
+          .portrait-wrap {
+            width: min(320px, 88vw);
+          }
+
+          .portrait {
+            max-height: 42vh;
+          }
+
+          .hero-tag {
+            font-size: 0.88rem;
+          }
+
+          .hero-sub,
+          .hero-side p {
+            font-size: 0.82rem;
+          }
+
+          .timeline-item {
+            grid-template-columns: 1fr;
+          }
+
+          .portfolio-footer {
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+        }
+
+        @media (hover: none) {
+          .hero-letter {
+            animation: none;
+          }
+
+          .hero-letter:hover {
+            transform: none;
+            text-shadow: none;
+            filter: none;
+          }
+        }
+      `}</style>
+    </main>
   )
 }
