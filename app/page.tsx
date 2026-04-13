@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Bebas_Neue, Manrope } from "next/font/google"
-import { ArrowUpRight, Github, Linkedin, Mail, MapPin, Phone } from "lucide-react"
+import { ArrowUpRight, Github, HelpCircle, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 const displayFont = Bebas_Neue({ subsets: ["latin"], weight: "400" })
@@ -70,11 +70,148 @@ const navItems = [
   { href: "#about", label: "About" },
   { href: "#projects", label: "Work / Portfolio" },
   { href: "#experience", label: "Experience" },
+  { href: "#resume", label: "Resume" },
   { href: "#contact", label: "Contact" },
 ]
 
+type BoardCell = "X" | "O" | null
+
+const winningLines = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+]
+
+const RESUME_URL = "/resume.pdf"
+
+function getWinner(board: BoardCell[]) {
+  for (const [a, b, c] of winningLines) {
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      return board[a]
+    }
+  }
+  return null
+}
+
+function isBoardFull(board: BoardCell[]) {
+  return board.every((cell) => cell !== null)
+}
+
+function getAvailableMoves(board: BoardCell[]) {
+  const moves: number[] = []
+  board.forEach((cell, index) => {
+    if (cell === null) {
+      moves.push(index)
+    }
+  })
+  return moves
+}
+
+function findImmediateMove(board: BoardCell[], mark: "X" | "O") {
+  for (const move of getAvailableMoves(board)) {
+    const testBoard = [...board]
+    testBoard[move] = mark
+    if (getWinner(testBoard) === mark) {
+      return move
+    }
+  }
+  return null
+}
+
+function minimax(board: BoardCell[], isMaximizing: boolean, depth: number, maxDepth: number): number {
+  const winner = getWinner(board)
+  if (winner === "O") {
+    return 10 - depth
+  }
+  if (winner === "X") {
+    return depth - 10
+  }
+  if (isBoardFull(board) || depth >= maxDepth) {
+    return 0
+  }
+
+  if (isMaximizing) {
+    let best = -Infinity
+    for (const move of getAvailableMoves(board)) {
+      const testBoard = [...board]
+      testBoard[move] = "O"
+      best = Math.max(best, minimax(testBoard, false, depth + 1, maxDepth))
+    }
+    return best
+  }
+
+  let best = Infinity
+  for (const move of getAvailableMoves(board)) {
+    const testBoard = [...board]
+    testBoard[move] = "X"
+    best = Math.min(best, minimax(testBoard, true, depth + 1, maxDepth))
+  }
+  return best
+}
+
+function getBestMove(board: BoardCell[], maxDepth = 7) {
+  let bestScore = -Infinity
+  let bestMove: number | null = null
+
+  for (const move of getAvailableMoves(board)) {
+    const testBoard = [...board]
+    testBoard[move] = "O"
+    const score = minimax(testBoard, false, 1, maxDepth)
+    if (score > bestScore) {
+      bestScore = score
+      bestMove = move
+    }
+  }
+
+  return bestMove
+}
+
+function getMediumComputerMove(board: BoardCell[]) {
+  const availableMoves = getAvailableMoves(board)
+  if (availableMoves.length === 0) {
+    return null
+  }
+
+  const winMove = findImmediateMove(board, "O")
+  if (winMove !== null) {
+    return winMove
+  }
+
+  const blockMove = findImmediateMove(board, "X")
+  if (blockMove !== null && Math.random() < 0.9) {
+    return blockMove
+  }
+
+  if (board[4] === null && Math.random() < 0.65) {
+    return 4
+  }
+
+  if (Math.random() < 0.62) {
+    const bestMove = getBestMove(board)
+    if (bestMove !== null) {
+      return bestMove
+    }
+  }
+
+  const preferredMoves = [0, 2, 6, 8, 1, 3, 5, 7]
+  const fallback = preferredMoves.find((move) => board[move] === null)
+
+  return fallback ?? availableMoves[Math.floor(Math.random() * availableMoves.length)]
+}
+
 export default function PortfolioPage() {
   const [buddyState, setBuddyState] = useState({ x: 120, y: 120, isRunning: false, facingLeft: false })
+  const [resumeUnlocked, setResumeUnlocked] = useState(false)
+  const [resumeGameStarted, setResumeGameStarted] = useState(false)
+  const [board, setBoard] = useState<BoardCell[]>(Array(9).fill(null))
+  const [isPlayerTurn, setIsPlayerTurn] = useState(true)
+  const [gameResult, setGameResult] = useState<"playing" | "won" | "lost" | "draw">("playing")
+  const computerMoveTimeoutRef = useRef<number | null>(null)
   const targetRef = useRef({ x: 120, y: 120 })
   const buddyOffsetX = -28
   const buddyOffsetY = -26
@@ -96,6 +233,102 @@ export default function PortfolioPage() {
     elements.forEach((element) => observer.observe(element))
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    return () => {
+      if (computerMoveTimeoutRef.current !== null) {
+        window.clearTimeout(computerMoveTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const resetGame = () => {
+    if (computerMoveTimeoutRef.current !== null) {
+      window.clearTimeout(computerMoveTimeoutRef.current)
+      computerMoveTimeoutRef.current = null
+    }
+    setBoard(Array(9).fill(null))
+    setIsPlayerTurn(true)
+    setGameResult("playing")
+  }
+
+  const startResumeChallenge = () => {
+    setResumeGameStarted(true)
+    resetGame()
+  }
+
+  const handleResumeClick = () => {
+    if (resumeUnlocked) {
+      window.open(RESUME_URL, "_blank", "noopener,noreferrer")
+      return
+    }
+    startResumeChallenge()
+  }
+
+  const handleCellClick = (index: number) => {
+    if (!resumeGameStarted || !isPlayerTurn || gameResult !== "playing" || board[index] !== null) {
+      return
+    }
+
+    const nextBoard = [...board]
+    nextBoard[index] = "X"
+
+    if (getWinner(nextBoard) === "X") {
+      setBoard(nextBoard)
+      setGameResult("won")
+      setResumeUnlocked(true)
+      setIsPlayerTurn(false)
+      return
+    }
+
+    if (isBoardFull(nextBoard)) {
+      setBoard(nextBoard)
+      setGameResult("draw")
+      setIsPlayerTurn(false)
+      return
+    }
+
+    setBoard(nextBoard)
+    setIsPlayerTurn(false)
+
+    computerMoveTimeoutRef.current = window.setTimeout(() => {
+      const computerMove = getMediumComputerMove(nextBoard)
+      if (computerMove === null) {
+        setGameResult("draw")
+        return
+      }
+
+      const afterComputer = [...nextBoard]
+      afterComputer[computerMove] = "O"
+
+      if (getWinner(afterComputer) === "O") {
+        setBoard(afterComputer)
+        setGameResult("lost")
+        return
+      }
+
+      if (isBoardFull(afterComputer)) {
+        setBoard(afterComputer)
+        setGameResult("draw")
+        return
+      }
+
+      setBoard(afterComputer)
+      setIsPlayerTurn(true)
+      computerMoveTimeoutRef.current = null
+    }, 540)
+  }
+
+  const gameStatusText =
+    gameResult === "won"
+      ? "You won. Resume unlocked."
+      : gameResult === "lost"
+        ? "Computer won. Try again to unlock the resume."
+        : gameResult === "draw"
+          ? "Draw game. Retry to unlock the resume."
+          : isPlayerTurn
+            ? "Your turn (X)"
+            : "Computer is thinking (O)..."
 
   useEffect(() => {
     let frameId = 0
@@ -199,8 +432,14 @@ export default function PortfolioPage() {
                 Software Developer at Hudson Software Solutions, specializing in machine learning, analytics, and human-centered web experiences.
               </p>
               <div className="hero-socials">
-                <Link href="https://x.com" aria-label="X" target="_blank" rel="noreferrer" className="icon-link">
-                  x
+                <Link
+                  href="https://www.instagram.com/_mr.darklord_?igsh=MnkwMGN0ZWI3NGdn"
+                  aria-label="Instagram"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="icon-link"
+                >
+                  <Instagram size={16} />
                 </Link>
                 <Link
                   href="https://www.linkedin.com/in/nandu-saji"
@@ -343,6 +582,91 @@ export default function PortfolioPage() {
         </div>
       </section>
 
+      <section id="resume" className="section reveal">
+        <div className="section-header">
+          <p className="section-kicker">// Resume</p>
+          <h2 className={`${displayFont.className} section-title`}>Play To Unlock Resume</h2>
+        </div>
+
+        <div className="resume-challenge">
+          <div className="resume-copy">
+            <h3>Want to view my resume?</h3>
+            <p>
+              Click resume access and win a medium-difficulty Tic-Tac-Toe challenge against the computer.
+              Beat it once and the resume unlocks.
+            </p>
+            <div className="resume-actions">
+              <button type="button" className="resume-btn" onClick={handleResumeClick}>
+                {resumeUnlocked ? "Open Resume" : "View Resume"}
+              </button>
+            </div>
+            {resumeUnlocked ? (
+              <Link href={RESUME_URL} target="_blank" rel="noreferrer" className="resume-link-inline">
+                Open unlocked resume in new tab <ArrowUpRight size={16} />
+              </Link>
+            ) : null}
+            <div className="rules-popover">
+              <div className="rules-visual-wrap">
+                <Image
+                  src="/rules-win-example.svg"
+                  alt="Tic Tac Toe winning pattern with X in the top row"
+                  width={170}
+                  height={170}
+                  className="rules-visual-image"
+                />
+              </div>
+              <div className="rules-text-wrap">
+                <p className="rules-title">
+                  <HelpCircle size={16} /> Game Rules
+                </p>
+                <ul>
+                  <li>You play as X, computer plays as O.</li>
+                  <li>Take turns and make a row of 3 to win.</li>
+                  <li>If computer wins or it&apos;s a draw, use retry.</li>
+                  <li>Win once to unlock resume access.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="game-panel">
+            {!resumeGameStarted ? (
+              <p className="game-hint">Click View Resume to start the challenge.</p>
+            ) : (
+              <>
+                <p className={`game-status ${gameResult}`}>{gameStatusText}</p>
+                <div className="ttt-grid" role="grid" aria-label="Tic Tac Toe board">
+                  {board.map((cell, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      className={`ttt-cell ${cell === "X" ? "x-mark" : cell === "O" ? "o-mark" : ""}`}
+                      onClick={() => handleCellClick(index)}
+                      disabled={cell !== null || !isPlayerTurn || gameResult !== "playing"}
+                      aria-label={`Cell ${index + 1}`}
+                    >
+                      {cell}
+                    </button>
+                  ))}
+                </div>
+                {gameResult !== "playing" ? (
+                  <div className="game-actions">
+                    {gameResult === "won" ? (
+                      <Link href={RESUME_URL} target="_blank" rel="noreferrer" className="resume-btn">
+                        View Resume
+                      </Link>
+                    ) : null}
+                    <button type="button" className="retry-btn" onClick={resetGame}>
+                      Retry Game
+                    </button>
+                  </div>
+                ) : null}
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
       <section id="contact" className="section contact-grid reveal">
         <div>
           <p className="section-kicker">// Contact</p>
@@ -463,7 +787,7 @@ export default function PortfolioPage() {
 
         .nav-pill {
           display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
+          grid-template-columns: repeat(6, minmax(0, 1fr));
           gap: 0.35rem;
           padding: 0.4rem;
           border-radius: 999px;
@@ -869,6 +1193,216 @@ export default function PortfolioPage() {
           line-height: 1.6;
         }
 
+        .resume-challenge {
+          display: grid;
+          grid-template-columns: 1.05fr 1fr;
+          gap: 1rem;
+          padding: 1rem;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          border-radius: 1.2rem;
+          background:
+            radial-gradient(circle at 10% 10%, rgba(92, 153, 255, 0.2), transparent 45%),
+            radial-gradient(circle at 90% 90%, rgba(15, 196, 154, 0.16), transparent 35%),
+            rgba(8, 14, 24, 0.72);
+          backdrop-filter: blur(6px);
+        }
+
+        .resume-copy h3 {
+          margin: 0;
+          font-size: 1.45rem;
+          color: #f3f7ff;
+        }
+
+        .resume-copy p {
+          margin: 0.75rem 0;
+          color: #b6c3dd;
+          line-height: 1.7;
+        }
+
+        .resume-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.65rem;
+          margin-bottom: 0.75rem;
+        }
+
+        .resume-btn,
+        .retry-btn {
+          border: 0;
+          border-radius: 999px;
+          padding: 0.66rem 1rem;
+          font: inherit;
+          font-weight: 800;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.35rem;
+          color: #fff;
+          background: linear-gradient(120deg, #2e9bff, #0dcf9d);
+          cursor: pointer;
+        }
+
+        .resume-btn:hover,
+        .retry-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 8px 20px rgba(20, 176, 154, 0.3);
+        }
+
+        .rules-popover {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          align-items: start;
+          gap: 0.75rem;
+          border-radius: 0.8rem;
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          background: rgba(9, 17, 30, 0.8);
+          padding: 0.85rem;
+        }
+
+        .rules-text-wrap {
+          min-width: 0;
+          order: 1;
+        }
+
+        .rules-title {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          margin: 0 0 0.5rem;
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: #95dbff;
+        }
+
+        .rules-popover ul {
+          margin: 0;
+          padding-left: 1rem;
+          color: #c6d3ea;
+          line-height: 1.6;
+          font-size: 0.86rem;
+        }
+
+        .rules-visual-wrap {
+          width: 170px;
+          aspect-ratio: 1 / 1;
+          flex-shrink: 0;
+          order: 2;
+          border: 1px solid rgba(130, 221, 255, 0.25);
+          border-radius: 0.7rem;
+          padding: 0.35rem;
+          background: rgba(12, 24, 42, 0.6);
+          display: grid;
+          place-items: center;
+        }
+
+        .rules-visual-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 0.45rem;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .resume-link-inline {
+          color: #86d7ff;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          font-weight: 700;
+          font-size: 0.88rem;
+        }
+
+        .game-panel {
+          border-radius: 1rem;
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          background: rgba(255, 255, 255, 0.04);
+          padding: 0.95rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          min-height: 340px;
+        }
+
+        .game-hint {
+          margin: 0;
+          color: #9fb2d0;
+          text-align: center;
+          font-size: 0.92rem;
+        }
+
+        .game-status {
+          margin: 0 0 0.75rem;
+          text-align: center;
+          font-weight: 700;
+          color: #daebff;
+          letter-spacing: 0.01em;
+        }
+
+        .game-status.won {
+          color: #7cf6c8;
+        }
+
+        .game-status.lost {
+          color: #ff9ca6;
+        }
+
+        .game-status.draw {
+          color: #ffd59b;
+        }
+
+        .ttt-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 0.55rem;
+          max-width: 320px;
+          width: 100%;
+          margin: 0 auto;
+        }
+
+        .ttt-cell {
+          aspect-ratio: 1;
+          border-radius: 0.85rem;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          background:
+            linear-gradient(140deg, rgba(22, 34, 58, 0.9), rgba(11, 19, 34, 0.75)),
+            rgba(255, 255, 255, 0.04);
+          color: #f6fbff;
+          font-size: clamp(1.6rem, 5vw, 2rem);
+          font-weight: 800;
+          transition: transform 0.18s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .ttt-cell:hover:enabled {
+          transform: translateY(-2px);
+          border-color: rgba(153, 227, 255, 0.86);
+          box-shadow: 0 10px 20px rgba(16, 120, 175, 0.2);
+        }
+
+        .ttt-cell:disabled {
+          opacity: 0.94;
+          cursor: not-allowed;
+        }
+
+        .ttt-cell.x-mark {
+          color: #8de8ff;
+          text-shadow: 0 0 14px rgba(67, 189, 255, 0.6);
+        }
+
+        .ttt-cell.o-mark {
+          color: #77f4ba;
+          text-shadow: 0 0 14px rgba(70, 235, 171, 0.5);
+        }
+
+        .game-actions {
+          margin-top: 0.9rem;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.55rem;
+        }
+
         .contact-list {
           margin-top: 1rem;
           display: grid;
@@ -1259,7 +1793,8 @@ export default function PortfolioPage() {
 
           .about-grid,
           .contact-grid,
-          .project-grid {
+          .project-grid,
+          .resume-challenge {
             grid-template-columns: 1fr;
           }
 
@@ -1284,7 +1819,7 @@ export default function PortfolioPage() {
           }
 
           .nav-pill {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             border-radius: 1rem;
           }
 
@@ -1317,6 +1852,20 @@ export default function PortfolioPage() {
 
           .timeline-item {
             grid-template-columns: 1fr;
+          }
+
+          .game-panel {
+            min-height: 300px;
+          }
+
+          .rules-popover {
+            grid-template-columns: 1fr;
+          }
+
+          .rules-visual-wrap {
+            order: 2;
+            width: 100%;
+            max-width: 180px;
           }
 
           .portfolio-footer {

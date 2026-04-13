@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#15263f" />
+      <stop offset="100%" stop-color="#0a1629" />
+    </linearGradient>
+    <linearGradient id="xStroke" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7be8ff" />
+      <stop offset="100%" stop-color="#2eb2ff" />
+    </linearGradient>
+    <linearGradient id="oStroke" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7df7c2" />
+      <stop offset="100%" stop-color="#26c88d" />
+    </linearGradient>
+  </defs>
+
+  <rect x="1" y="1" width="218" height="218" rx="16" fill="url(#bg)" stroke="#3a628f" stroke-opacity="0.55" />
+
+  <g transform="translate(23 23)">
+    <rect x="0" y="0" width="54" height="54" rx="9" fill="#10213a" stroke="#4bb8ff" stroke-opacity="0.8" />
+    <path d="M14 14L40 40M40 14L14 40" stroke="url(#xStroke)" stroke-width="4" stroke-linecap="round" />
+
+    <rect x="60" y="0" width="54" height="54" rx="9" fill="#10213a" stroke="#4bb8ff" stroke-opacity="0.8" />
+    <path d="M74 14L100 40M100 14L74 40" stroke="url(#xStroke)" stroke-width="4" stroke-linecap="round" />
+
+    <rect x="120" y="0" width="54" height="54" rx="9" fill="#10213a" stroke="#4bb8ff" stroke-opacity="0.8" />
+    <path d="M134 14L160 40M160 14L134 40" stroke="url(#xStroke)" stroke-width="4" stroke-linecap="round" />
+
+    <rect x="0" y="60" width="54" height="54" rx="9" fill="#0f1b31" stroke="#29476f" />
+    <circle cx="27" cy="87" r="13" stroke="url(#oStroke)" stroke-width="4" />
+
+    <rect x="60" y="60" width="54" height="54" rx="9" fill="#0f1b31" stroke="#29476f" />
+    <circle cx="87" cy="87" r="13" stroke="url(#oStroke)" stroke-width="4" />
+
+    <rect x="120" y="60" width="54" height="54" rx="9" fill="#0f1b31" stroke="#29476f" />
+
+    <rect x="0" y="120" width="54" height="54" rx="9" fill="#0f1b31" stroke="#29476f" />
+    <rect x="60" y="120" width="54" height="54" rx="9" fill="#0f1b31" stroke="#29476f" />
+    <rect x="120" y="120" width="54" height="54" rx="9" fill="#0f1b31" stroke="#29476f" />
+
+    <line x1="5" y1="27" x2="169" y2="27" stroke="#95ecff" stroke-width="5" stroke-linecap="round" />
+  </g>
+</svg>
