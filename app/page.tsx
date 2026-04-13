@@ -1746,6 +1746,15 @@ export default function PortfolioPage() {
         }
 
         @media (max-width: 980px) {
+          .portfolio-wrap,
+          .portfolio-wrap * {
+            cursor: auto !important;
+          }
+
+          .cursor-buddy {
+            display: none;
+          }
+
           .hero-card {
             min-height: auto;
             padding-top: 1.15rem;
