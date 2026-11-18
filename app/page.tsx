@@ -205,16 +205,12 @@ function getMediumComputerMove(board: BoardCell[]) {
 }
 
 export default function PortfolioPage() {
-  const [buddyState, setBuddyState] = useState({ x: 120, y: 120, isRunning: false, facingLeft: false })
   const [resumeUnlocked, setResumeUnlocked] = useState(false)
   const [resumeGameStarted, setResumeGameStarted] = useState(false)
   const [board, setBoard] = useState<BoardCell[]>(Array(9).fill(null))
   const [isPlayerTurn, setIsPlayerTurn] = useState(true)
   const [gameResult, setGameResult] = useState<"playing" | "won" | "lost" | "draw">("playing")
   const computerMoveTimeoutRef = useRef<number | null>(null)
-  const targetRef = useRef({ x: 120, y: 120 })
-  const buddyOffsetX = -28
-  const buddyOffsetY = -26
 
   useEffect(() => {
     const elements = document.querySelectorAll<HTMLElement>(".reveal")
@@ -329,76 +325,6 @@ export default function PortfolioPage() {
           : isPlayerTurn
             ? "Your turn (X)"
             : "Computer is thinking (O)..."
-
-  useEffect(() => {
-    let frameId = 0
-    let currentX = Math.min(window.innerWidth * 0.35, window.innerWidth - 80)
-    let currentY = Math.min(window.innerHeight * 0.35, window.innerHeight - 80)
-    let lastMoveAt = performance.now()
-    let lastFacingLeft = false
-    let previousMouseX = currentX
-
-    targetRef.current = { x: currentX, y: currentY }
-    setBuddyState({ x: currentX, y: currentY, isRunning: false, facingLeft: false })
-
-    const handleMouseMove = (event: MouseEvent) => {
-      targetRef.current = {
-        x: event.clientX,
-        y: event.clientY,
-      }
-
-      const mouseDeltaX = event.clientX - previousMouseX
-      if (Math.abs(mouseDeltaX) > 0.6) {
-        lastFacingLeft = mouseDeltaX < 0
-      }
-      previousMouseX = event.clientX
-
-      lastMoveAt = performance.now()
-    }
-
-    const tick = () => {
-      const dx = targetRef.current.x - currentX
-      const dy = targetRef.current.y - currentY
-      const distance = Math.hypot(dx, dy)
-
-      currentX += dx * 0.09
-      currentY += dy * 0.09
-
-      if (Math.abs(dx) > 1.5) {
-        lastFacingLeft = dx < 0
-      }
-
-      const isRunning = distance > 1.6 && performance.now() - lastMoveAt < 180
-
-      setBuddyState((prev) => {
-        if (
-          Math.abs(prev.x - currentX) < 0.4 &&
-          Math.abs(prev.y - currentY) < 0.4 &&
-          prev.isRunning === isRunning &&
-          prev.facingLeft === lastFacingLeft
-        ) {
-          return prev
-        }
-
-        return {
-          x: currentX,
-          y: currentY,
-          isRunning,
-          facingLeft: lastFacingLeft,
-        }
-      })
-
-      frameId = window.requestAnimationFrame(tick)
-    }
-
-    window.addEventListener("mousemove", handleMouseMove)
-    frameId = window.requestAnimationFrame(tick)
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove)
-      window.cancelAnimationFrame(frameId)
-    }
-  }, [])
 
   return (
     <main className={`${bodyFont.className} portfolio-wrap`}>
@@ -712,49 +638,6 @@ export default function PortfolioPage() {
         </div>
       </footer>
 
-      <div
-        className={`cursor-buddy ${buddyState.isRunning ? "is-running" : "is-sitting"} ${buddyState.facingLeft ? "facing-left" : "facing-right"}`}
-        style={{ transform: `translate3d(${buddyState.x + buddyOffsetX}px, ${buddyState.y + buddyOffsetY}px, 0)` }}
-        aria-hidden="true"
-      >
-        <div className="buddy-flip">
-          <div className="buddy-shell">
-            <svg className="bird-svg" viewBox="0 0 80 60" role="presentation" aria-hidden="true">
-              <defs>
-                <linearGradient id="birdBodyGradient" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#7fd6ff" />
-                  <stop offset="65%" stopColor="#4da6df" />
-                  <stop offset="100%" stopColor="#3b86be" />
-                </linearGradient>
-                <linearGradient id="birdWingGradient" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#9ce6ff" />
-                  <stop offset="100%" stopColor="#4a9fd6" />
-                </linearGradient>
-                <linearGradient id="branchGradient" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#7d573d" />
-                  <stop offset="100%" stopColor="#a27450" />
-                </linearGradient>
-              </defs>
-              <line className="bird-branch" x1="8" y1="51" x2="72" y2="51" />
-              <g className="bird-main">
-                <path className="bird-tail" d="M24 33 L12 27 L13 39 Z" />
-                <ellipse className="bird-wing bird-wing-back" cx="33" cy="32" rx="12" ry="7" />
-                <ellipse className="bird-body" cx="39" cy="33" rx="17" ry="12.5" />
-                <ellipse className="bird-belly" cx="41" cy="36" rx="9" ry="6.8" />
-                <circle className="bird-head" cx="54" cy="27" r="9.5" />
-                <ellipse className="bird-cheek" cx="57" cy="30" rx="3.6" ry="2.6" />
-                <ellipse className="bird-wing bird-wing-front" cx="44" cy="33" rx="12.5" ry="8" />
-                <path className="bird-beak" d="M62 24.5 L62 30.2 L74 27 Z" />
-                <circle className="bird-eye" cx="56" cy="24.8" r="1.6" />
-                <circle className="bird-eye-shine" cx="56.6" cy="24.2" r="0.52" />
-                <line className="bird-foot bird-foot-left" x1="42" y1="44" x2="40" y2="49" />
-                <line className="bird-foot bird-foot-right" x1="46.5" y1="44" x2="48.5" y2="49" />
-              </g>
-            </svg>
-          </div>
-        </div>
-      </div>
-
       <style jsx global>{`
         .portfolio-wrap {
           --page-pad: 1rem;
@@ -767,11 +650,6 @@ export default function PortfolioPage() {
           background-size: 140% 140%;
           padding: 0 var(--page-pad);
           animation: bgShift 20s ease-in-out infinite alternate;
-        }
-
-        .portfolio-wrap,
-        .portfolio-wrap * {
-          cursor: none !important;
         }
 
         .section,
@@ -1473,203 +1351,6 @@ export default function PortfolioPage() {
           color: #d6dded;
         }
 
-        .cursor-buddy {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 58px;
-          height: 44px;
-          pointer-events: none;
-          z-index: 70;
-          will-change: transform;
-          filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
-        }
-
-        .buddy-shell {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          transform-origin: 45% 62%;
-        }
-
-        .buddy-flip {
-          width: 100%;
-          height: 100%;
-        }
-
-        .facing-left .buddy-flip {
-          transform: scaleX(-1);
-        }
-
-        .bird-svg {
-          width: 100%;
-          height: 100%;
-          overflow: visible;
-        }
-
-        .bird-main {
-          transform-origin: 40px 32px;
-        }
-
-        .bird-body,
-        .bird-head {
-          fill: url(#birdBodyGradient);
-          stroke: rgba(26, 70, 103, 0.6);
-          stroke-width: 1;
-        }
-
-        .bird-belly {
-          fill: #eaf8ff;
-          opacity: 0.94;
-        }
-
-        .bird-cheek {
-          fill: rgba(255, 234, 214, 0.82);
-        }
-
-        .bird-tail,
-        .bird-wing {
-          fill: url(#birdWingGradient);
-        }
-
-        .bird-wing {
-          transform-box: fill-box;
-          transform-origin: 85% 50%;
-        }
-
-        .bird-wing-back {
-          opacity: 0.85;
-        }
-
-        .bird-beak {
-          fill: #ffc55d;
-        }
-
-        .bird-eye {
-          fill: #0f2436;
-        }
-
-        .bird-eye-shine {
-          fill: #ffffff;
-        }
-
-        .bird-foot {
-          stroke: #f4b956;
-          stroke-width: 1.7;
-          stroke-linecap: round;
-          opacity: 0;
-        }
-
-        .bird-branch {
-          stroke: url(#branchGradient);
-          stroke-width: 5;
-          stroke-linecap: round;
-          opacity: 0;
-        }
-
-        .cursor-buddy.is-running .buddy-shell {
-          animation: birdFlyBody 0.34s ease-in-out infinite;
-        }
-
-        .cursor-buddy.is-running .bird-wing-front {
-          animation: wingFlapFront 0.22s ease-in-out infinite;
-        }
-
-        .cursor-buddy.is-running .bird-wing-back {
-          animation: wingFlapBack 0.22s ease-in-out infinite;
-        }
-
-        .cursor-buddy.is-running .bird-tail {
-          animation: birdTailFly 0.3s ease-in-out infinite alternate;
-        }
-
-        .cursor-buddy.is-running .bird-foot,
-        .cursor-buddy.is-running .bird-branch {
-          opacity: 0;
-        }
-
-        .cursor-buddy.is-sitting .buddy-shell {
-          animation: birdPerchBody 1.8s ease-in-out infinite;
-        }
-
-        .cursor-buddy.is-sitting .bird-wing {
-          animation: none;
-          transform: rotate(8deg);
-        }
-
-        .cursor-buddy.is-sitting .bird-tail {
-          animation: birdTailSit 1.2s ease-in-out infinite;
-        }
-
-        .cursor-buddy.is-sitting .bird-foot {
-          opacity: 1;
-        }
-
-        .cursor-buddy.is-sitting .bird-branch {
-          opacity: 1;
-          transform: scaleX(1);
-        }
-
-        @keyframes birdFlyBody {
-          0%,
-          100% {
-            transform: translateY(0) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-2px) rotate(-2deg);
-          }
-        }
-
-        @keyframes wingFlapFront {
-          0%,
-          100% {
-            transform: rotate(10deg) translateY(0);
-          }
-          50% {
-            transform: rotate(-42deg) translateY(-3px);
-          }
-        }
-
-        @keyframes wingFlapBack {
-          0%,
-          100% {
-            transform: rotate(0deg) translateY(0);
-          }
-          50% {
-            transform: rotate(-30deg) translateY(-2px);
-          }
-        }
-
-        @keyframes birdPerchBody {
-          0%,
-          100% {
-            transform: translateY(0) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-1px) rotate(1deg);
-          }
-        }
-
-        @keyframes birdTailFly {
-          0%,
-          100% {
-            transform: rotate(8deg);
-          }
-          50% {
-            transform: rotate(-14deg);
-          }
-        }
-
-        @keyframes birdTailSit {
-          0%,
-          100% {
-            transform: rotate(3deg);
-          }
-          50% {
-            transform: rotate(-6deg);
-          }
-        }
-
         .reveal {
           opacity: 0;
           transform: translateY(26px) scale(0.98);
@@ -1746,15 +1427,6 @@ export default function PortfolioPage() {
         }
 
         @media (max-width: 980px) {
-          .portfolio-wrap,
-          .portfolio-wrap * {
-            cursor: auto !important;
-          }
-
-          .cursor-buddy {
-            display: none;
-          }
-
           .hero-card {
             min-height: auto;
             padding-top: 1.15rem;
@@ -1884,10 +1556,6 @@ export default function PortfolioPage() {
         }
 
         @media (hover: none) {
-          .cursor-buddy {
-            display: none;
-          }
-
           .hero-letter {
             animation: none;
           }
@@ -1896,13 +1564,6 @@ export default function PortfolioPage() {
             transform: none;
             text-shadow: none;
             filter: none;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .cursor-buddy,
-          .cursor-buddy * {
-            animation: none !important;
           }
         }
       `}</style>

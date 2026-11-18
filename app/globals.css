@@ -174,3 +174,147 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(to bottom, #7c3aed, #db2777);
 }
+
+/* ------------------------------------------------------------------ */
+/* Intro GIF on every page load (components/intro-overlay.tsx)         */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --intro-hold: 1.8s; /* one play of the GIF (it stops on its last frame) */
+  --intro-fade: 1.6s;
+}
+
+html:has(.intro) {
+  overflow: hidden;
+}
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: #05070c;
+  cursor: pointer;
+}
+
+/* Clock starts once the GIF has loaded: play, then slowly fade into the site. */
+.intro--playing {
+  animation: intro-out var(--intro-fade) ease-in-out var(--intro-hold) forwards;
+}
+
+.intro--skipped {
+  animation: intro-out 700ms ease-in-out forwards;
+  pointer-events: none;
+}
+
+/* The GIF (498x280) has ~26px black bars baked in top and bottom;
+   the frame crops them so only the picture (498x228) shows. */
+
+/* Web: keep it horizontal, centred. */
+.intro__frame {
+  position: relative;
+  width: min(900px, 88vw, calc(80vh * 498 / 228));
+  aspect-ratio: 498 / 228;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+}
+
+.intro--playing .intro__frame {
+  animation: intro-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.intro__media {
+  position: absolute;
+  left: 0;
+  top: -11.4%;
+  width: 100%;
+  height: 122.8%; /* 280 / 228 */
+  max-width: none;
+  display: block;
+}
+
+/* Phone: zoom to fill the screen, centred on the subject. */
+@media (max-width: 640px), (orientation: portrait) and (max-width: 900px) {
+  .intro__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    aspect-ratio: auto;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Keeps the oversized box from the base rule, so cover-zooming fills the
+     screen with the picture while the baked-in bars stay off-screen. */
+  .intro__media {
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+.intro__progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #0ee4a7;
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+.intro--playing .intro__progress {
+  animation: intro-progress var(--intro-hold) linear both;
+}
+
+.intro__skip {
+  position: absolute;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid rgba(238, 241, 246, 0.45);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #eef1f6;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.intro__skip:hover,
+.intro__skip:focus-visible {
+  background: #eef1f6;
+  color: #05070c;
+}
+
+@keyframes intro-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes intro-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes intro-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
